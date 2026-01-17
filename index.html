@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Tracker</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Lucide icons as SVG components
+        const Calendar = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        );
+        
+        const DollarSign = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+        );
+        
+        const TrendingUp = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+        );
+        
+        const Plus = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        );
+        
+        const Edit2 = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+            </svg>
+        );
+        
+        const Trash2 = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        );
+        
+        const Save = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+        );
+        
+        const X = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        );
+        
+        const Navigation = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+        );
+        
+        const Settings = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
+            </svg>
+        );
+        
+        const Wifi = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+            </svg>
+        );
+        
+        const WifiOff = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+                <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+                <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+                <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+                <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+            </svg>
+        );
+        
+        const CheckCircle = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        );
+        
+        const Clock = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        );
+        
+        const BarChart3 = ({ size = 24, className = "" }) => (
+            <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3v18h18"></path>
+                <path d="M18 17V9"></path>
+                <path d="M13 17V5"></path>
+                <path d="M8 17v-3"></path>
+            </svg>
+        );
+
+        function TripTracker() {
+          const [trips, setTrips] = useState([]);
+          const [tripInput, setTripInput] = useState('');
+          const [currentWeekTotal, setCurrentWeekTotal] = useState({ fare: 0, charge: 0, tip: 0 });
+          const [previousWeeks, setPreviousWeeks] = useState([]);
+          const [showPreviousWeeks, setShowPreviousWeeks] = useState(false);
+          const [editingTrip, setEditingTrip] = useState(null);
+          const [editForm, setEditForm] = useState({ original: '', timestamp: '', tip: 0 });
+          const [mileageEntries, setMileageEntries] = useState([]);
+          const [mileageInput, setMileageInput] = useState('');
+          const [mileageDateInput, setMileageDateInput] = useState('');
+          const [editingMileage, setEditingMileage] = useState(null);
+          const [editMileageForm, setEditMileageForm] = useState({ miles: 0, date: '' });
+          const [currentWeekMiles, setCurrentWeekMiles] = useState(0);
+          const [gasEntries, setGasEntries] = useState([]);
+          const [gasAmountInput, setGasAmountInput] = useState('');
+          const [gasDateInput, setGasDateInput] = useState('');
+          const [gasReceiptPhoto, setGasReceiptPhoto] = useState(null);
+          const [editingGas, setEditingGas] = useState(null);
+          const [editGasForm, setEditGasForm] = useState({ amount: 0, date: '', photo: null });
+          const [currentWeekGas, setCurrentWeekGas] = useState(0);
+          const [viewingPhoto, setViewingPhoto] = useState(null);
+          const [maintenanceEntries, setMaintenanceEntries] = useState([]);
+          const [maintenanceDescInput, setMaintenanceDescInput] = useState('');
+          const [maintenanceDateInput, setMaintenanceDateInput] = useState('');
+          const [editingMaintenance, setEditingMaintenance] = useState(null);
+          const [editMaintenanceForm, setEditMaintenanceForm] = useState({ description: '', date: '' });
+          const [expenseEntries, setExpenseEntries] = useState([]);
+          const [expenseTitleInput, setExpenseTitleInput] = useState('');
+          const [expenseDescInput, setExpenseDescInput] = useState('');
+          const [expenseAmountInput, setExpenseAmountInput] = useState('');
+          const [expenseDateInput, setExpenseDateInput] = useState('');
+          const [expensePhoto, setExpensePhoto] = useState(null);
+          const [editingExpense, setEditingExpense] = useState(null);
+          const [editExpenseForm, setEditExpenseForm] = useState({ title: '', description: '', amount: 0, date: '', photo: null });
+          const [currentWeekExpenses, setCurrentWeekExpenses] = useState(0);
+          const [showSettings, setShowSettings] = useState(false);
+          const [sheetsUrl, setSheetsUrl] = useState('https://script.google.com/macros/s/AKfycbx3cLNzGF6Vm1-lklXyFekWeuDSACuhjqzVN3_RVHbvrg5dnnmlERD_meImujZiIXsS/exec');
+          const [syncQueue, setSyncQueue] = useState([]);
+          const [isOnline, setIsOnline] = useState(navigator.onLine);
+          const [lastSync, setLastSync] = useState(null);
+          const [isSyncing, setIsSyncing] = useState(false);
+
+          useEffect(() => {
+            const handleOnline = () => setIsOnline(true);
+            const handleOffline = () => setIsOnline(false);
+            window.addEventListener('online', handleOnline);
+            window.addEventListener('offline', handleOffline);
+            return () => {
+              window.removeEventListener('online', handleOnline);
+              window.removeEventListener('offline', handleOffline);
+            };
+          }, []);
+
+          useEffect(() => {
+            if (isOnline && syncQueue.length > 0) {
+              processSyncQueue();
+            }
+          }, [isOnline]);
+
+          const addToSyncQueue = (item) => {
+            const updatedQueue = [...syncQueue, item];
+            setSyncQueue(updatedQueue);
+            localStorage.setItem('sync_queue', JSON.stringify(updatedQueue));
+          };
+
+          const processSyncQueue = async () => {
+            if (isSyncing || syncQueue.length === 0 || !sheetsUrl) return;
+            
+            setIsSyncing(true);
+            const queue = [...syncQueue];
+            const failed = [];
+
+            for (const item of queue) {
+              try {
+                await fetch(sheetsUrl, {
+                  method: 'POST',
+                  mode: 'no-cors',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(item)
+                });
+              } catch (error) {
+                console.error('Sync failed for item:', error);
+                failed.push(item);
+              }
+            }
+
+            setSyncQueue(failed);
+            localStorage.setItem('sync_queue', JSON.stringify(failed));
+            if (failed.length === 0) {
+              setLastSync(new Date());
+              localStorage.setItem('last_sync', new Date().toISOString());
+            }
+            
+            setIsSyncing(false);
+          };
+
+          const syncToSheets = async (data) => {
+            if (!sheetsUrl) return;
+            
+            if (isOnline) {
+              try {
+                await fetch(sheetsUrl, {
+                  method: 'POST',
+                  mode: 'no-cors',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(data)
+                });
+                setLastSync(new Date());
+                localStorage.setItem('last_sync', new Date().toISOString());
+              } catch (error) {
+                console.error('Direct sync failed, adding to queue:', error);
+                addToSyncQueue(data);
+              }
+            } else {
+              addToSyncQueue(data);
+            }
+          };
+
+          const getCurrentWeekRange = () => {
+            const now = new Date();
+            const currentHour = now.getHours();
+            let adjustedDate = new Date(now);
+            if (currentHour < 3) {
+              adjustedDate.setDate(adjustedDate.getDate() - 1);
+            }
+            const dayOfWeek = adjustedDate.getDay();
+            const sunday = new Date(adjustedDate);
+            sunday.setDate(adjustedDate.getDate() - dayOfWeek);
+            sunday.setHours(3, 0, 0, 0);
+            const saturday = new Date(sunday);
+            saturday.setDate(sunday.getDate() + 7);
+            return { start: sunday, end: saturday };
+          };
+
+          const parseTrip = (input) => {
+            let fare = 0;
+            let charge = 0;
+            const normalized = input.toLowerCase().replace(/\$/g, '');
+            const chargeMatch = normalized.match(/charge\s*(\d+)/);
+            if (chargeMatch) {
+              charge = parseFloat(chargeMatch[1]);
+            }
+            const farePatterns = [
+              /(?:^|\s)(\d+)(?:\s|$)/,
+              /\bfive\b/i,
+              /\bten\b/i,
+              /\bnine\b/i
+            ];
+            for (const pattern of farePatterns) {
+              const match = normalized.match(pattern);
+              if (match) {
+                if (pattern.source.includes('five')) fare = 5;
+                else if (pattern.source.includes('ten')) fare = 10;
+                else if (pattern.source.includes('nine')) fare = 9;
+                else fare = parseFloat(match[1]);
+                break;
+              }
+            }
+            return { fare, charge, original: input };
+          };
+
+          const addTrip = async () => {
+            if (!tripInput.trim()) return;
+            const parsed = parseTrip(tripInput);
+            const now = new Date();
+            let recordDate = new Date(now);
+            if (now.getHours() < 3) {
+              recordDate.setDate(recordDate.getDate() - 1);
+            }
+            const newTrip = {
+              id: Date.now(),
+              ...parsed,
+              tip: 0,
+              timestamp: now.toISOString(),
+              recordDate: recordDate.toISOString()
+            };
+            const updatedTrips = [...trips, newTrip];
+            setTrips(updatedTrips);
+            setTripInput('');
+            localStorage.setItem('trips', JSON.stringify(updatedTrips));
+            calculateTotals(updatedTrips);
+            
+            await syncToSheets({ type: 'trip', ...newTrip });
+          };
+
+          const calculateTotals = (tripList) => {
+            const weekRange = getCurrentWeekRange();
+            const currentWeekTrips = tripList.filter(trip => {
+              const tripDate = new Date(trip.recordDate);
+              return tripDate >= weekRange.start && tripDate < weekRange.end;
+            });
+            const totals = currentWeekTrips.reduce((acc, trip) => ({
+              fare: acc.fare + trip.fare,
+              charge: acc.charge + trip.charge,
+              tip: acc.tip + (trip.tip || 0)
+            }), { fare: 0, charge: 0, tip: 0 });
+            setCurrentWeekTotal(totals);
+          };
+
+          const calculateCashout = () => {
+            const myShare = (currentWeekTotal.fare / 2) + currentWeekTotal.charge + currentWeekTotal.tip;
+            const companyShare = currentWeekTotal.fare / 2;
+            return { myShare, companyShare };
+          };
+
+          useEffect(() => {
+            const savedTrips = localStorage.getItem('trips');
+            const savedWeeks = localStorage.getItem('previous_weeks');
+            const savedQueue = localStorage.getItem('sync_queue');
+            const savedLastSync = localStorage.getItem('last_sync');
+            const savedSheetsUrl = localStorage.getItem('sheets_url');
+            
+            if (savedTrips) {
+              const loadedTrips = JSON.parse(savedTrips);
+              setTrips(loadedTrips);
+              calculateTotals(loadedTrips);
+            }
+            if (savedWeeks) setPreviousWeeks(JSON.parse(savedWeeks));
+            if (savedQueue) setSyncQueue(JSON.parse(savedQueue));
+            if (savedLastSync) setLastSync(new Date(savedLastSync));
+            if (savedSheetsUrl) setSheetsUrl(savedSheetsUrl);
+          }, []);
+
+          const cashout = calculateCashout();
+          const weekRange = getCurrentWeekRange();
+
+          const getSyncStatusIcon = () => {
+            if (isSyncing) return <Clock className="text-yellow-500 animate-spin" size={18} />;
+            if (syncQueue.length > 0) return <Clock className="text-orange-500" size={18} />;
+            return <CheckCircle className="text-green-500" size={18} />;
+          };
+
+          const getLastSyncText = () => {
+            if (!lastSync) return 'Never';
+            const now = new Date();
+            const diff = Math.floor((now - lastSync) / 1000 / 60);
+            if (diff < 1) return 'Now';
+            if (diff < 60) return `${diff}m`;
+            const hours = Math.floor(diff / 60);
+            if (hours < 24) return `${hours}h`;
+            return lastSync.toLocaleDateString();
+          };
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h1 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <Calendar size={24} className="text-indigo-600" />
+                        Trip Tracker
+                      </h1>
+                      <p className="text-xs sm:text-sm text-gray-600">
+                        {weekRange.start.toLocaleDateString()} - {weekRange.end.toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="flex items-center gap-2 bg-gray-50 px-2 py-1 sm:px-3 sm:py-2 rounded-lg">
+                        {isOnline ? <Wifi className="text-green-500" size={16} /> : <WifiOff className="text-red-500" size={16} />}
+                        <div className="text-xs">
+                          <div className="flex items-center gap-1">
+                            {getSyncStatusIcon()}
+                            <span className="text-gray-600">{syncQueue.length > 0 ? syncQueue.length : '✓'}</span>
+                          </div>
+                          <div className="text-gray-500 hidden sm:block">{getLastSyncText()}</div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowSettings(!showSettings)}
+                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                      >
+                        <Settings size={20} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {showSettings && (
+                    <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
+                      <h3 className="font-semibold mb-3">Google Sheets</h3>
+                      <input
+                        type="text"
+                        value={sheetsUrl}
+                        onChange={(e) => setSheetsUrl(e.target.value)}
+                        className="w-full px-3 py-2 border rounded text-sm mb-2"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => localStorage.setItem('sheets_url', sheetsUrl)}
+                          className="bg-indigo-600 text-white px-4 py-2 rounded text-sm"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={processSyncQueue}
+                          disabled={!isOnline || syncQueue.length === 0}
+                          className="bg-green-600 text-white px-4 py-2 rounded text-sm disabled:bg-gray-300"
+                        >
+                          Sync ({syncQueue.length})
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="mb-4">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={tripInput}
+                        onChange={(e) => setTripInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && addTrip()}
+                        placeholder="Lincoln to why 5 charge 10"
+                        className="flex-1 px-3 py-2 border-2 rounded-lg text-sm sm:text-base"
+                      />
+                      <button onClick={addTrip} className="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+                        <Plus size={20} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-1 text-blue-700 mb-1">
+                        <TrendingUp size={14} />
+                        <span className="font-semibold text-xs">Fare</span>
+                      </div>
+                      <div className="text-lg font-bold text-blue-900">${currentWeekTotal.fare.toFixed(2)}</div>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-1 text-green-700 mb-1">
+                        <DollarSign size={14} />
+                        <span className="font-semibold text-xs">Charges</span>
+                      </div>
+                      <div className="text-lg font-bold text-green-900">${currentWeekTotal.charge.toFixed(2)}</div>
+                    </div>
+                    <div className="bg-purple-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-1 text-purple-700 mb-1">
+                        <DollarSign size={14} />
+                        <span className="font-semibold text-xs">Tips</span>
+                      </div>
+                      <div className="text-lg font-bold text-purple-900">${currentWeekTotal.tip.toFixed(2)}</div>
+                    </div>
+                    <div className="bg-orange-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-1 text-orange-700 mb-1">
+                        <Navigation size={14} />
+                        <span className="font-semibold text-xs">Miles</span>
+                      </div>
+                      <div className="text-lg font-bold text-orange-900">{currentWeekMiles.toFixed(1)}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-4 rounded-xl mb-4">
+                    <h2 className="text-lg font-bold mb-2">Cashout</h2>
+                    <div className="flex justify-between items-center">
+                      <span>Your Share:</span>
+                      <span className="font-bold text-2xl">${cashout.myShare.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-indigo-100 text-sm mt-1">
+                      <span>Company:</span>
+                      <span>${cashout.companyShare.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="text-center text-gray-500 text-sm mt-8">
+                    Trip Tracker v1.0 - Beta
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        ReactDOM.render(<TripTracker />, document.getElementById('root'));
+    </script>
+</body>
+</html>
+ 
